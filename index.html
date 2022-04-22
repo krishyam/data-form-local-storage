@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+<style type="text/css">
+  .green-main-table{
+  background-color: rgb(141, 205, 191) !important;
+}
+</style>
+<title>Hello, world!</title>
+</head>
+<body>
+<div class="container">
+  <section>
+<div class="card bg-light p-5 m-3">
+<h1>Add New WOD</h1>
+  <div class="mb-3">
+    <label for="questions_form" class="form-label">Enter WOD title</label>
+    <input type="text" class="form-control" id="questions_form">
+  </div>
+  <div class="mb-3">
+    <label for="desc_form" class="form-label">Enter WOD Description</label>
+    <textarea class="form-control" placeholder="Description" id="desc_form" rows="3"></textarea>
+  </div>
+  <div class="mb-3">
+    <label for="assignee_form" class="form-label">Assigned To</label>
+    <input type="text" class="form-control" id="assignee_form">
+  </div>
+    <div class="mb-3">
+    <label for="difficulty_form" class="form-label">Difficulty</label>
+    <select class="form-select" id="difficulty">
+  <option selected>Select a Level</option>
+  <option value="Easy">Easy</option>
+  <option value="Moderate">Moderate</option>
+  <option value="Difficult">Difficult</option>
+</select>
+</div>
+<button class="btn btn-primary" onclick="addItemPressed()">Add new item</button>
+</section>
+<hr>
+<section id="list" class="text-center">
+  <div class="card p-5 bg-light">
+  <h2 >Workout of the Day List</h2>
+  <table class="table table-bordered table-striped table-hover">
+    <thead>
+      <tr class="bg-success text-light">
+        <th>Name</th>
+        <th>Assignee</th>
+        <th>Difficulty</th>
+      </tr>
+    </thead>
+    <tbody id="wod_list"></tbody>
+  </table>
+  </div>
+
+</section>
+<hr>
+<section id="detail" hidden>
+  <div class="card p-5 bg-light">
+    <h2>About WOD</h2>
+    <p>Name: <span id="detail_name">Fibonacci</span></p>
+    <p>Description: <span id="detail_desc">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod</span></p>
+    <p>Difficulty: <span id="detail_diff">Easy</span></p>
+    <p>Assignee: <span id="detail_assignee">Aiman</span></p>
+    <p>Status: <span id="detail_status">Open</span></p>
+    <p><button class="btn btn-primary" onclick="donePressed()">Mark as Done</button><button class="btn btn-danger" onclick="deletePressed()">Delete</button></p>
+  </div>
+</section>
+</div>
+<script type="text/javascript">
+  
+  var wods = [];
+
+  var selectedwod;
+  var selectedindex;
+
+  var items = localStorage.getItem("wods");
+
+  if (items){
+    wods = JSON.parse(items);
+    refreshTable();
+  }
+  function donePressed(){
+    selectedwod.completed = true;
+    document.getElementById("detail_status").innerHTML = "Completed";
+    localStorage.setItem("wods",JSON.stringify(wods))
+  }
+
+  function deletePressed(){
+    wods.splice(selectedindex,1);
+    document.getElementById("wod_list").innerHTML = "";
+    document.getElementById("detail").setAttribute("hidden",true);
+    localStorage.setItem("wods",JSON.stringify(wods))
+
+    refreshTable()
+  }
+
+  function addItemPressed() {
+    var name = document.getElementById("questions_form").value;
+    var assignee = document.getElementById("assignee_form").value;
+    var difficulty = document.getElementById("difficulty").value;
+    var descValue = document.getElementById("desc_form").value;
+
+       var newWod = {
+      name:name,
+      assignee:assignee,
+      difficulty:difficulty,
+      description:descValue,
+      completed:false
+    }
+
+    wods.push(newWod);
+    localStorage.setItem("wods",JSON.stringify(wods))
+    document.getElementById("wod_list").innerHTML = "";
+    refreshTable();
+
+    document.getElementById("questions_form").value="";
+    document.getElementById("assignee_form").value="";
+    document.getElementById("difficulty").value="";
+    document.getElementById("desc_form").value="";
+
+    alert("Successfully added");
+        
+  }
+
+  function refreshTable(){
+
+    for (var i = 0; i < wods.length; i++){
+
+    var td1 = document.createElement("td");
+    var td2 = document.createElement("td");
+    var td3 = document.createElement("td");
+
+    td1.innerHTML = wods[i].name;
+    td2.innerHTML = wods[i].assignee;
+    td3.innerHTML = wods[i].difficulty;
+
+    var newtr = document.createElement("tr");
+
+    newtr.appendChild(td1);
+    newtr.appendChild(td2);
+    newtr.appendChild(td3);
+
+    newtr.item = wods[i];
+    newtr.selectedindex = i;
+
+    newtr.addEventListener("click", function(evt){
+      document.getElementById("detail").removeAttribute("hidden");
+      selectedwod = evt.currentTarget.item;
+      selectedindex = evt.currentTarget.selectedindex;
+      document.getElementById("detail_name").innerHTML = selectedwod.name;
+      document.getElementById("detail_desc").innerHTML = selectedwod.description;
+      document.getElementById("detail_diff").innerHTML = selectedwod.difficulty;
+      document.getElementById("detail_assignee").innerHTML = selectedwod.assignee;
+
+      if (selectedwod.completed) {
+      document.getElementById("detail_status").innerHTML = "Completed";  
+      }
+      else {
+      document.getElementById("detail_status").innerHTML = "Not Completed";
+      }
+    })
+
+    document.getElementById("wod_list").appendChild(newtr);
+  }
+}
+</script>
+
+    <!-- Optional JavaScript; choose one of the two! -->
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+
+    <!-- Option 2: Separate Popper and Bootstrap JS -->
+    <!--
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>
+    -->
+  </body>
+</html>
